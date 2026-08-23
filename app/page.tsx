@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, type ReactNode, type FormEvent } from "react";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
@@ -83,9 +83,9 @@ const projects = [
     id: "mcp-bridge",
     number: "03",
     type: "Enterprise Integration · MCP · Cloud",
-    title: "ShipServ API to MCP Bridge",
+    title: "Logistics API to MCP Bridge",
     status: "Built and deployed in SAP BTP",
-    summary: "A reusable pattern for converting a Postman-documented external API into a BTP-hosted MCP service for AI tool discovery and execution.",
+    summary: "A reusable pattern for converting a Postman-documented external API—for a global logistics client, with the name omitted for confidentiality—into a BTP-hosted MCP service for AI tool discovery and execution.",
     challenge: "The external service required OAuth credentials, while the enterprise AI client needed a separately secured MCP endpoint rather than direct API access.",
     build: "Separated authentication from business endpoints, created an API configuration with BTP Destinations, applied OAuth2 Client Credentials for the external service, used XSUAA for client-to-app authorization and exposed the MCP endpoint at /mcp.",
     validation: "Built and deployed the MTA, checked application health and logs, verified the connector path and completed a functional AI-client test.",
@@ -102,7 +102,7 @@ const projects = [
     summary: "A comparative NLP system designed to move beyond overall sentiment and identify how people feel about specific aspects of a product or experience.",
     challenge: "A single positive or negative label hides the fact that one review can praise quality while criticising price, delivery or service.",
     build: "Developed and compared approaches using BERT, RoBERTa and BiLSTM, covering text preparation, aspect-level modelling and evaluation.",
-    validation: "Compared model behaviour and evaluation results, and contributed to an IEEE-published review paper on the research area.",
+    validation: "Compared model behaviour and evaluation results, and co-authored the IEEE-published paper “Exploring Progress in Aspect-based Sentiment Analysis: An In-depth Survey.”",
     value: "Turns unstructured customer language into more precise, decision-ready feedback for product and service teams.",
     stack: ["Python", "BERT", "RoBERTa", "BiLSTM", "NLP", "Deep Learning"],
     flow: ["Review", "Preprocess", "Find aspects", "Classify", "Compare models", "Insights"],
@@ -133,11 +133,11 @@ const capabilityEvidence = [
     status: "Built & deployed",
     strength: "Demonstrated",
     summary: "I use MCP as a controlled integration layer—not as a label for a generic chatbot.",
-    where: "Kuok Group · ShipServ bridge and Safety Stock Copilot",
+    where: "Kuok Group · logistics-client API bridge and Safety Stock Copilot",
     proof: "Two distinct MCP implementations covering tool discovery, execution, API wrapping and enterprise authentication boundaries.",
     actions: ["Built a Streamable HTTP MCP service", "Validated initialize, tools/list and tools/call", "Exposed validated read-only tools and a production /mcp route"],
     tools: ["MCP SDK", "Node.js", "Streamable HTTP", "Tool schemas", "Input validation"],
-    boundary: "The ShipServ bridge reached SAP BTP deployment. The Safety Stock MCP is locally validated; XSUAA, backend testing and DEV deployment are the remaining stages.",
+    boundary: "The logistics-client bridge reached SAP BTP deployment. The Safety Stock MCP is locally validated; XSUAA, backend testing and DEV deployment are the remaining stages.",
   },
   {
     id: "power-automate",
@@ -159,7 +159,7 @@ const capabilityEvidence = [
     status: "Deployed pattern",
     strength: "Demonstrated",
     summary: "I separate client-to-app authorization from app-to-external-service credentials instead of mixing both security boundaries.",
-    where: "Kuok Group · ShipServ API to MCP bridge",
+    where: "Kuok Group · logistics-client API to MCP bridge",
     proof: "A BTP-hosted integration using Destinations, OAuth2 Client Credentials and XSUAA-scoped access.",
     actions: ["Configured BTP Destination-based credentials", "Applied XSUAA roles and redirect configuration", "Built, deployed and checked application health and logs"],
     tools: ["SAP BTP", "XSUAA", "OAuth2", "Destinations", "MTA", "Cloud Foundry"],
@@ -212,7 +212,7 @@ const capabilityEvidence = [
     strength: "Demonstrated",
     summary: "I have built and compared models that identify sentiment at the aspect level rather than reducing a review to one label.",
     where: "Academic research · Aspect-Based Sentiment Analysis",
-    proof: "Comparative modelling with BERT, RoBERTa and BiLSTM, supported by an IEEE-published review contribution.",
+    proof: "Comparative modelling with BERT, RoBERTa and BiLSTM, supported by the co-authored IEEE paper “Exploring Progress in Aspect-based Sentiment Analysis: An In-depth Survey.”",
     actions: ["Prepared and modelled text data", "Compared transformer and recurrent approaches", "Evaluated model behaviour and research findings"],
     tools: ["BERT", "RoBERTa", "BiLSTM", "Python", "NLP", "Deep learning"],
     boundary: "The evidence is academic and project-based; I do not label it as a large-scale production NLP deployment.",
@@ -271,13 +271,305 @@ const capabilityEvidence = [
   },
 ];
 
-const journey = [
-  { place: "Kuok Group", role: "Enterprise Business Analytics Intern", note: "Forecasting preparation, SAP workflow automation, MCP integration and governed enterprise AI experimentation.", marker: "Now" },
-  { place: "DataVerze", role: "AI & Data Analyst · 10 months", note: "Professional experience across Python, SQL, analytics, machine learning and business-facing problem solving.", marker: "Experience" },
-  { place: "NUS-ISS", role: "M.Tech · Enterprise Business Analytics", note: "Predictive modelling, forecasting, analytics and the translation of technical work into enterprise decisions.", marker: "Singapore" },
-  { place: "SVKM’s NMIMS University", role: "Bachelor’s · Computer Science", note: "Software engineering, algorithms, data structures, AI, systems, databases, networks and information security.", marker: "Foundation" },
-  { place: "Software Development Internship", role: "MERN Stack Developer", note: "Built with React and Node.js and learned to diagnose real deployment issues, not only local code paths.", marker: "Build" },
+type JourneyEntry = {
+  place: string;
+  role: string;
+  note: string;
+  marker: string;
+  highlights: string[];
+  stack: string[];
+  relatedProjectIds: string[];
+};
+
+const journey: JourneyEntry[] = [
+  {
+    place: "Kuok Group",
+    role: "Enterprise Business Analytics Intern",
+    note: "Forecasting preparation, SAP workflow automation, MCP integration and governed enterprise AI experimentation.",
+    marker: "Now",
+    highlights: [
+      "Built and locally validated a Streamable HTTP MCP service, testing tool discovery and execution end to end.",
+      "Converted a manual SAP change-request process into a governed Power Automate and SharePoint workflow with routing, approvals and an audit trail.",
+      "Separated reliable transaction data from uncertain material-master fields before using them in forecasting preparation.",
+      "Configured SAP BTP Destinations, OAuth2 and XSUAA so external credentials and client authorization sit on separate security boundaries.",
+    ],
+    stack: ["Python", "Node.js", "MCP", "SAP BTP", "Power Automate", "XSUAA", "OAuth2"],
+    relatedProjectIds: ["safety-stock", "sap-workflow", "mcp-bridge"],
+  },
+  {
+    place: "DataVerze",
+    role: "AI & Data Analyst · 10 months",
+    note: "Professional experience across Python, SQL, analytics, machine learning and business-facing problem solving.",
+    marker: "Experience",
+    highlights: [
+      "Built Python and SQL data pipelines and validation routines across 50,000+ records.",
+      "Developed anomaly detection and exception-analysis logic to catch data-quality issues before they reached downstream models.",
+      "Compared baseline and updated model outputs using structured metrics and root-cause analysis.",
+      "Worked directly with business and technical stakeholders to turn ambiguous questions into validated analytical outputs.",
+    ],
+    stack: ["Python", "SQL", "Data Quality", "Anomaly Detection", "Model Evaluation"],
+    relatedProjectIds: [],
+  },
+  {
+    place: "NUS-ISS",
+    role: "M.Tech · Enterprise Business Analytics",
+    note: "Predictive modelling, forecasting, analytics and the translation of technical work into enterprise decisions.",
+    marker: "Singapore",
+    highlights: [
+      "Coursework spanning predictive modelling, forecasting, enterprise decision support and analytics project management.",
+      "Built customer scoring and segmentation models—RFM, PCA, K-Means, churn and conversion prediction—on event-level behavioural data.",
+      "Developed attribution and prescriptive recommendation logic to rank channels, segments and retention actions.",
+      "Applied regression, classification, forecasting and clustering models to a 100,000+ order e-commerce dataset.",
+    ],
+    stack: ["Predictive Modelling", "Forecasting", "Python", "Customer Analytics"],
+    relatedProjectIds: ["olist"],
+  },
+  {
+    place: "SVKM's NMIMS University",
+    role: "Bachelor's · Computer Science",
+    note: "Software engineering, algorithms, data structures, AI, systems, databases, networks and information security.",
+    marker: "Foundation",
+    highlights: [
+      "Built and compared BERT, RoBERTa and BiLSTM models for fine-grained aspect-level sentiment classification.",
+      "Reached roughly 85% classification accuracy, evaluated with precision, recall, F1-score and confusion-matrix analysis.",
+      "Co-authored an IEEE-published review paper on the research area.",
+      "Grounded everything that came after in core CS fundamentals: algorithms, databases, systems and networks.",
+    ],
+    stack: ["Algorithms", "Data Structures", "Databases", "NLP"],
+    relatedProjectIds: ["nlp"],
+  },
+  {
+    place: "Software Development Internship",
+    role: "MERN Stack Developer",
+    note: "Built with React and Node.js and learned to diagnose real deployment issues, not only local code paths.",
+    marker: "Build",
+    highlights: [
+      "Developed and tested MERN-stack features and REST APIs, including Git-based workflows and API debugging.",
+      "Automated Python data-extraction and reporting pipelines, cutting manual operational effort by 30%.",
+      "Supported release readiness through functional testing, data validation and structured defect resolution.",
+    ],
+    stack: ["React", "Node.js", "REST APIs", "MongoDB"],
+    relatedProjectIds: [],
+  },
 ];
+
+type WalkthroughStage = { marker: string; place: string; role: string; note: string; aside: string };
+
+const walkthroughStages: WalkthroughStage[] = [
+  {
+    marker: "Foundation",
+    place: "SVKM's NMIMS University",
+    role: "Bachelor's · Computer Science",
+    note: "Software engineering, algorithms, data structures, AI, systems, databases, networks and information security.",
+    aside: "This is where the fundamentals stuck. I didn't know yet it'd all end up pointed at enterprise AI.",
+  },
+  {
+    marker: "Build",
+    place: "Software Development Internship",
+    role: "MERN Stack Developer",
+    note: "Built with React and Node.js and learned to diagnose real deployment issues, not only local code paths.",
+    aside: "My first real production bug. I still remember the relief of finally watching the deploy succeed.",
+  },
+  {
+    marker: "Experience",
+    place: "DataVerze",
+    role: "AI & Data Analyst · 10 months",
+    note: "Professional experience across Python, SQL, analytics, machine learning and business-facing problem solving.",
+    aside: "Ten months of just... data. Cleaning it, questioning it, trusting it less. That instinct never left.",
+  },
+  {
+    marker: "Singapore",
+    place: "NUS-ISS",
+    role: "M.Tech · Enterprise Business Analytics",
+    note: "Predictive modelling, forecasting, analytics and the translation of technical work into enterprise decisions.",
+    aside: "Moved to Singapore for this, and started seeing forecasting and automation as one connected problem, not separate skills.",
+  },
+  {
+    marker: "Now",
+    place: "Kuok Group",
+    role: "Enterprise Business Analytics Intern",
+    note: "Forecasting preparation, SAP workflow automation, MCP integration and governed enterprise AI experimentation.",
+    aside: "This is where I first got hands-on with MCP, and got hooked. Everything before this was preparation for exactly this kind of work.",
+  },
+  {
+    marker: "Next",
+    place: "What I'm building next",
+    role: "SAP AI Query Agent · LLM evaluation · Agent workflows",
+    note: "A sanitized, public proof of enterprise tool use and retrieval, deeper work on LLM evaluation and reliability, and production-style agent workflows with guardrails and human handoff.",
+    aside: "This site keeps growing exactly as fast as this work does. Nothing here gets labelled 'done' before it's real.",
+  },
+];
+
+type HeroTag = { id: string; label: string; description: string; nodeIndex: number; delay: string };
+
+const heroTags: HeroTag[] = [
+  { id: "mcp", label: "MCP", description: "Model Context Protocol servers turning enterprise APIs into governed, discoverable AI tools.", nodeIndex: 4, delay: "0s" },
+  { id: "sap-btp", label: "SAP BTP", description: "Cloud Foundry deployments secured with OAuth2 and XSUAA authentication boundaries.", nodeIndex: 4, delay: "-1s" },
+  { id: "forecasting", label: "Forecasting", description: "Demand and safety-stock forecasting built on validated, reliability-checked enterprise data.", nodeIndex: 3, delay: "-2s" },
+  { id: "automation", label: "Automation", description: "Power Automate and SharePoint workflows replacing manual, untracked approvals.", nodeIndex: 2, delay: "-3s" },
+];
+
+type ChatQuestion = { id: string; question: string; answer: ReactNode; keywords: string[] };
+
+const chatQuestions: ChatQuestion[] = [
+  {
+    id: "now",
+    question: "What are you working on right now?",
+    keywords: ["now", "currently", "working on", "today"],
+    answer: "Right now I'm at Kuok Group building governed AI systems for enterprise workflows — a safety-stock decision-support copilot with forecasting preparation in progress, an MCP bridge connecting external data to AI clients, and an automated SAP change-request process. Outside of that I'm deepening my skills in LLM evaluation and reliability, because building an agent is the easy part; trusting it is the hard part.",
+  },
+  {
+    id: "mcp",
+    question: "Tell me about the MCP project.",
+    keywords: ["mcp", "model context protocol"],
+    answer: "I've built two MCP integrations so far. One converts a logistics client's external API into an SAP BTP-hosted MCP service, separating authentication from business endpoints so the AI client never touches raw credentials. The other is a safety-stock copilot that exposes validated, read-only inventory recommendations as an MCP tool. Both are about making AI access enterprise data safely, not just making it 'talk to APIs.'",
+  },
+  {
+    id: "stack",
+    question: "What's your tech stack?",
+    keywords: ["stack", "tools", "tech", "technolog"],
+    answer: "Day to day: Python and SQL for data and analytics, Node.js for MCP services, and SAP BTP with OAuth2 and XSUAA for deployment and security. On the ML/NLP side I've worked with BERT, RoBERTa and BiLSTM. I lean toward tools that make a system explainable and auditable over ones that just look impressive in a demo.",
+  },
+  {
+    id: "why",
+    question: "Why enterprise AI, not just ML?",
+    keywords: ["why", "enterprise ai", "not just ml"],
+    answer: "Because most companies don't fail at building a model, they fail at trusting it enough to actually use it. I like the layer underneath the model: the messy business process, the SAP data that's technically there but not reliable, the approvals nobody wrote down. Get that right and the AI part becomes the easy, fun bit.",
+  },
+  {
+    id: "contact",
+    question: "How do I get in touch?",
+    keywords: ["contact", "reach", "email", "touch", "hire"],
+    answer: (
+      <>
+        Easiest way is email — <a href="mailto:charulata1711@gmail.com">charulata1711@gmail.com</a>. You can also find me on{" "}
+        <a href="https://www.linkedin.com/in/charulata-c-54ba271b0/" target="_blank" rel="noreferrer">LinkedIn</a>, or grab my{" "}
+        <a href={`${basePath}/Charulata_Chauhan_Automation_AI_Resume.pdf`} download>résumé</a> directly.
+      </>
+    ),
+  },
+  {
+    id: "next",
+    question: "What are you learning next?",
+    keywords: ["learning", "next", "future", "exploring"],
+    answer: "Three things right now: a sanitized SAP AI Query Agent I can actually show publicly, LLM evaluation and reliability, and production-style agent workflows — RAG, tool calling, memory and guardrails. The stuff that separates a cool demo from something a business can actually rely on.",
+  },
+];
+
+const fallbackAnswer: ReactNode = (
+  <>
+    That's a good one — I'd point you to my <a href={`${basePath}/Charulata_Chauhan_Automation_AI_Resume.pdf`} download>résumé</a> or{" "}
+    <a href="https://www.linkedin.com/in/charulata-c-54ba271b0/" target="_blank" rel="noreferrer">LinkedIn</a> for the details, or email me directly at{" "}
+    <a href="mailto:charulata1711@gmail.com">charulata1711@gmail.com</a>.
+  </>
+);
+
+function ChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<{ role: "user" | "bot"; content: ReactNode }[]>([
+    { role: "bot", content: "Hey, I'm Charulata 👋 Ask me anything, or tap a question below to get started." },
+  ]);
+  const [input, setInput] = useState("");
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, open]);
+
+  const ask = (q: ChatQuestion) => {
+    setMessages((prev) => [...prev, { role: "user", content: q.question }, { role: "bot", content: q.answer }]);
+  };
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    const lower = trimmed.toLowerCase();
+    const match = chatQuestions.find((q) => q.keywords.some((keyword) => lower.includes(keyword)));
+    setMessages((prev) => [...prev, { role: "user", content: trimmed }, { role: "bot", content: match ? match.answer : fallbackAnswer }]);
+    setInput("");
+  };
+
+  return (
+    <div className={`chat-widget ${open ? "open" : ""}`}>
+      {open && (
+        <div className="chat-panel" role="dialog" aria-label="Chat with Charulata">
+          <div className="chat-head">
+            <div><strong>Charulata</strong><span>Guided assistant — quick answers, real voice</span></div>
+            <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close chat">×</button>
+          </div>
+          <div className="chat-body" ref={bodyRef}>
+            {messages.map((message, index) => (
+              <div key={index} className={`chat-bubble ${message.role}`}>{message.content}</div>
+            ))}
+          </div>
+          <div className="chat-chips">
+            {chatQuestions.map((q) => (
+              <button key={q.id} onClick={() => ask(q)}>{q.question}</button>
+            ))}
+          </div>
+          <form className="chat-input-row" onSubmit={handleSubmit}>
+            <input type="text" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Ask me something..." aria-label="Ask a question" />
+            <button type="submit" aria-label="Send">↑</button>
+          </form>
+        </div>
+      )}
+      <button className="chat-toggle" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={open ? "Close chat" : "Open chat with Charulata"}>
+        {open ? "×" : "💬"}
+      </button>
+    </div>
+  );
+}
+
+function Walkthrough({ open, stages, onClose }: { open: boolean; stages: WalkthroughStage[]; onClose: () => void }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    setStep(0);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowRight") setStep((value) => Math.min(stages.length - 1, value + 1));
+      if (event.key === "ArrowLeft") setStep((value) => Math.max(0, value - 1));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose, stages.length]);
+
+  if (!open) return null;
+  const stage = stages[step];
+
+  return (
+    <div className="walkthrough-overlay" role="dialog" aria-modal="true" aria-label="Guided walkthrough of Charulata's journey">
+      <button className="walkthrough-close" onClick={onClose}>Skip to full site <span aria-hidden="true">×</span></button>
+      <div className="walkthrough-progress" aria-hidden="true">
+        {stages.map((_, index) => (
+          <span key={index} className={index === step ? "active" : index < step ? "done" : ""} />
+        ))}
+      </div>
+      <div className="walkthrough-stage" key={step}>
+        <p className="kicker">{stage.marker} · Step {step + 1} of {stages.length}</p>
+        <h2>{stage.place}</h2>
+        <strong>{stage.role}</strong>
+        <p className="walkthrough-note">{stage.note}</p>
+        <p className="walkthrough-aside">"{stage.aside}"</p>
+      </div>
+      <div className="walkthrough-controls">
+        <button onClick={() => setStep((value) => Math.max(0, value - 1))} disabled={step === 0}>← Back</button>
+        {step < stages.length - 1 ? (
+          <button className="primary" onClick={() => setStep((value) => value + 1)}>Next →</button>
+        ) : (
+          <button className="primary" onClick={onClose}>See the full site →</button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [activeNode, setActiveNode] = useState(0);
@@ -285,6 +577,8 @@ export default function Home() {
   const [scenario, setScenario] = useState<string | null>(null);
   const [capabilityFilter, setCapabilityFilter] = useState("All");
   const [activeCapability, setActiveCapability] = useState(capabilityEvidence[0].id);
+  const [expandedJourney, setExpandedJourney] = useState<string | null>(journey[0]?.place ?? null);
+  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
   const currentProject = projects.find((project) => project.id === activeProject) ?? projects[0];
   const currentCapability = capabilityEvidence.find((capability) => capability.id === activeCapability) ?? capabilityEvidence[0];
   const visibleCapabilities = capabilityEvidence.filter((capability) => capabilityFilter === "All" || capability.category === capabilityFilter);
@@ -293,6 +587,20 @@ export default function Home() {
     setCapabilityFilter(filter);
     const firstMatch = capabilityEvidence.find((capability) => filter === "All" || capability.category === filter);
     if (firstMatch) setActiveCapability(firstMatch.id);
+  };
+
+  const toggleJourney = (place: string) => {
+    setExpandedJourney((current) => (current === place ? null : place));
+  };
+
+  const goToProject = (id: string) => {
+    setActiveProject(id);
+    document.getElementById("work")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const focusSystemNode = (index: number) => {
+    setActiveNode(index);
+    document.getElementById("system-map")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -312,6 +620,7 @@ export default function Home() {
           <div className="hero-actions">
             <a className="button primary" href="#system-map">Explore my systems <span>↓</span></a>
             <a className="button secondary" href="mailto:charulata1711@gmail.com?subject=Portfolio%20conversation">Start a conversation <span>↗</span></a>
+            <button type="button" className="button ghost" onClick={() => setWalkthroughOpen(true)}>Walk me through it <span aria-hidden="true">▶</span></button>
           </div>
           <div className="hero-proof" aria-label="Professional highlights">
             <div><strong>10 mo.</strong><span>Full-time AI & data experience</span></div>
@@ -324,7 +633,14 @@ export default function Home() {
           <div className="portrait-card">
             <div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" />
             <div className="portrait-placeholder"><span className="portrait-initials">CC</span><small>Enterprise AI · Singapore</small></div>
-            <span className="floating-tag tag-one">MCP</span><span className="floating-tag tag-two">SAP BTP</span><span className="floating-tag tag-three">Forecasting</span><span className="floating-tag tag-four">Automation</span>
+          </div>
+          <div className="hero-orbit-tags">
+            {heroTags.map((tag) => (
+              <button key={tag.id} type="button" className={`hero-tag tag-${tag.id}`} onClick={() => focusSystemNode(tag.nodeIndex)} aria-label={`${tag.label}: ${tag.description}`}>
+                <span className="hero-tag-pill" style={{ animationDelay: tag.delay }}>{tag.label}</span>
+                <span className="hero-tag-tip" role="tooltip">{tag.description}</span>
+              </button>
+            ))}
           </div>
           <div className="terminal-card">
             <div className="terminal-head"><span /><span /><span /><b>system.profile</b></div>
@@ -369,6 +685,17 @@ export default function Home() {
               </div>
               <div className="case-grid"><div><span>Challenge</span><p>{currentProject.challenge}</p></div><div><span>What I built</span><p>{currentProject.build}</p></div><div><span>Validation</span><p>{currentProject.validation}</p></div><div><span>Business value</span><p>{currentProject.value}</p></div></div>
               <div className="stack-row">{currentProject.stack.map((item) => <span key={item}>{item}</span>)}</div>
+              {currentProject.id === "nlp" && (
+                <a
+                  className="button secondary"
+                  href="https://ieeexplore.ieee.org/document/10543612"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Read Exploring Progress in Aspect-based Sentiment Analysis: An In-depth Survey on IEEE Xplore"
+                >
+                  Read the IEEE paper <span aria-hidden="true">↗</span>
+                </a>
+              )}
               <p className="privacy-note">Public case study · company data, endpoints, credentials and internal configurations are intentionally excluded.</p>
             </article>
           </div>
@@ -376,9 +703,47 @@ export default function Home() {
       </section>
 
       <section className="experience-section section-shell" id="experience">
-        <div className="section-heading split-heading"><div><p className="kicker">System evolution</p><h2>A path from software to enterprise AI.</h2></div><p>Computer-science foundations, professional AI and data work, enterprise analytics and hands-on automation now converge in one direction.</p></div>
+        <div className="section-heading split-heading"><div><p className="kicker">System evolution</p><h2>A path from software to enterprise AI.</h2></div><p>Click a stage to see what was actually built, the tools involved and the related work it connects to.</p></div>
         <div className="journey">
-          {journey.map((item, index) => <article className="journey-item" key={item.place}><div className="journey-line"><span>{String(index + 1).padStart(2, "0")}</span></div><div className="journey-main"><p>{item.marker}</p><h3>{item.place}</h3><strong>{item.role}</strong></div><p className="journey-note">{item.note}</p></article>)}
+          {journey.map((item, index) => {
+            const expanded = expandedJourney === item.place;
+            return (
+              <article className={`journey-item ${expanded ? "expanded" : ""}`} key={item.place}>
+                <button type="button" className="journey-toggle" onClick={() => toggleJourney(item.place)} aria-expanded={expanded} aria-controls={`journey-panel-${index}`}>
+                  <div className="journey-line"><span>{String(index + 1).padStart(2, "0")}</span></div>
+                  <div className="journey-main"><p>{item.marker}</p><h3>{item.place}</h3><strong>{item.role}</strong></div>
+                  <p className="journey-note">{item.note}</p>
+                  <i className="journey-chevron" aria-hidden="true">+</i>
+                </button>
+                <div className="journey-panel-wrap" id={`journey-panel-${index}`} aria-hidden={!expanded}>
+                  <div className="journey-panel">
+                    <ul className="journey-highlights">
+                      {item.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}
+                    </ul>
+                    <div className="journey-stack">
+                      {item.stack.map((tool) => <span key={tool}>{tool}</span>)}
+                    </div>
+                    {item.relatedProjectIds.length > 0 && (
+                      <div className="journey-related">
+                        <span>Related work</span>
+                        <div className="journey-related-links">
+                          {item.relatedProjectIds.map((id) => {
+                            const related = projects.find((project) => project.id === id);
+                            if (!related) return null;
+                            return (
+                              <button type="button" key={id} onClick={() => goToProject(id)}>
+                                {related.title} <i aria-hidden="true">→</i>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -459,10 +824,13 @@ export default function Home() {
       </section>
 
       <section className="contact-section" id="contact">
-        <div className="section-shell contact-grid"><div><p className="kicker">Open channel</p><h2>Let’s build AI that works beyond the demo.</h2></div><div className="contact-copy"><p>I’m open to opportunities in Enterprise AI Automation, Applied AI Solutions, Agentic AI and technology transformation.</p><a className="contact-email" href="mailto:charulata1711@gmail.com">charulata1711@gmail.com <span>↗</span></a><div className="contact-links"><a href="https://www.linkedin.com/in/charulata-c-54ba271b0/" target="_blank" rel="noreferrer">LinkedIn <small>professional profile ↗</small></a><a href="https://github.com/charu1717" target="_blank" rel="noreferrer">GitHub · Archive <small>existing work ↗</small></a><a href="https://github.com/charu-1727" target="_blank" rel="noreferrer">GitHub · Portfolio <small>new structured projects ↗</small></a><a href={`${basePath}/Charulata_Chauhan_Resume.pdf`} download>Résumé <small>download PDF ↓</small></a></div></div></div>
+        <div className="section-shell contact-grid"><div><p className="kicker">Open channel</p><h2>Let’s build AI that works beyond the demo.</h2></div><div className="contact-copy"><p>I’m open to opportunities in Enterprise AI Automation, Applied AI Solutions, Agentic AI and technology transformation.</p><a className="contact-email" href="mailto:charulata1711@gmail.com">charulata1711@gmail.com <span>↗</span></a><div className="contact-links"><a href="https://www.linkedin.com/in/charulata-c-54ba271b0/" target="_blank" rel="noreferrer">LinkedIn <small>professional profile ↗</small></a><a href="https://github.com/charu1717" target="_blank" rel="noreferrer">GitHub · Archive <small>existing work ↗</small></a><a href="https://github.com/charu-1727" target="_blank" rel="noreferrer">GitHub · Portfolio <small>new structured projects ↗</small></a><a href="https://ieeexplore.ieee.org/document/10543612" target="_blank" rel="noreferrer">IEEE paper <small>published research ↗</small></a><a href={`${basePath}/Charulata_Chauhan_Automation_AI_Resume.pdf`} download>Résumé <small>download PDF ↓</small></a></div></div></div>
       </section>
 
       <footer className="footer section-shell"><div className="brand"><span className="brand-mark">CC</span><span>Charulata Chauhan</span></div><p>Enterprise AI Automation · Applied AI Solutions · Singapore</p><a href="#home">Back to top ↑</a></footer>
+
+      <Walkthrough open={walkthroughOpen} stages={walkthroughStages} onClose={() => setWalkthroughOpen(false)} />
+      <ChatWidget />
     </main>
   );
 }
