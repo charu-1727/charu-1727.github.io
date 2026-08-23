@@ -326,7 +326,7 @@ const journey: JourneyEntry[] = [
   },
   {
     place: "SVKM's NMIMS University",
-    role: "Bachelor's · Computer Science",
+    role: "Bachelor's · Information Technology",
     note: "Software engineering, algorithms, data structures, AI, systems, databases, networks and information security.",
     marker: "Foundation",
     highlights: [
