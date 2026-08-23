@@ -300,7 +300,7 @@ export default function Home() {
       <nav className="nav-shell" aria-label="Primary navigation">
         <a className="brand" href="#home" aria-label="Charulata Chauhan home"><span className="brand-mark">CC</span><span>Charulata Chauhan</span></a>
         <div className="nav-links"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#capabilities">Capabilities</a><a href="#contact">Contact</a></div>
-        <a className="nav-cta" href={`${basePath}/Charulata_Chauhan_Resume.pdf`} download>Download résumé <span aria-hidden="true">↓</span></a>
+        <a className="nav-cta" href={`${basePath}/Charulata_Chauhan_Automation_AI_Resume.pdf`} download>Download résumé <span aria-hidden="true">↓</span></a>
       </nav>
 
       <section className="hero section-shell" id="home">
