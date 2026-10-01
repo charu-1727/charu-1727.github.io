@@ -50,10 +50,69 @@ const systemNodes: SystemNode[] = [
   },
 ];
 
-const projects = [
+type ProjectMetric = { label: string; value: string };
+type ProjectLinks = { demoUrl?: string; repoUrl?: string; repoPrivate?: boolean };
+
+type Project = {
+  id: string;
+  number: string;
+  type: string;
+  title: string;
+  status: string;
+  summary: string;
+  challenge: string;
+  build: string;
+  validation: string;
+  value: string;
+  stack: string[];
+  flow: string[];
+  features?: string[];
+  metrics?: ProjectMetric[];
+  links?: ProjectLinks;
+};
+
+const projects: Project[] = [
+  {
+    id: "evidence-qa",
+    number: "01",
+    type: "RAG · Document Intelligence · Local LLM",
+    title: "Evidence QA — Grounded Compliance Document Intelligence",
+    status: "Private repo · evaluated on a frozen, unseen holdout",
+    summary: "A local-first document question-answering system for compliance and security evidence. It processes PDF, DOCX, and XLSX files, retrieves relevant evidence, generates answers with Qwen3 8B through Ollama, verifies citation quotes, supports safe abstention when evidence is unavailable, and processes question sets in resumable batches.",
+    challenge: "Compliance and security teams need accurate answers from dense PDF, DOCX and XLSX evidence, but a system that guesses or fabricates a citation is more dangerous than one that simply says it doesn't know.",
+    build: "Built a local-first retrieval-and-answer pipeline: format-aware extraction preserves page, paragraph, sheet and row locations, hybrid evidence retrieval surfaces the relevant passages, and Qwen3 8B running through Ollama generates answers that quote verified source text or abstain with \"the document does not state this\" when the evidence doesn't support an answer. Question sets process in resumable CSV/XLSX batches, and the model-provider interface is swappable between local and hosted inference.",
+    validation: "Evaluated on a frozen, unseen holdout set rather than training data: 21/30 correct overall, 94.1% answer precision on the answers it chose to give, 0.971 citation precision and 21/22 retrieval recall@6. It outperformed a no-model extractive baseline 21/30 to 11/30 — and it still misses or abstains on roughly a third of the holdout, which is reported here rather than hidden.",
+    value: "Gives compliance and security teams a way to query dense evidence sets locally and privately, with every answer traceable to a verified quote and source location, backed by automated tests and a reproducible evaluation harness rather than an inflated accuracy claim.",
+    stack: ["Python", "FastAPI", "Ollama", "Qwen3 8B", "RAG", "BM25", "PDF", "DOCX", "XLSX", "pytest"],
+    flow: ["PDF/DOCX/XLSX", "Format-aware extraction", "Hybrid retrieval", "Qwen3 8B (Ollama)", "Verify citation", "Answer or abstain"],
+    features: [
+      "PDF, DOCX and XLSX ingestion",
+      "Format-aware extraction and source locations",
+      "Hybrid evidence retrieval",
+      "Local Qwen3 8B inference through Ollama",
+      "Verified quotations and page, paragraph, sheet and row citations",
+      "Safe \"document does not state this\" abstention",
+      "Resumable CSV/XLSX batch processing and export",
+      "Swappable local and hosted model-provider interface",
+      "Automated tests and a reproducible evaluation harness",
+      "Frozen unseen holdout evaluation",
+    ],
+    metrics: [
+      { label: "Frozen unseen holdout", value: "21/30" },
+      { label: "Answer precision (answers shown)", value: "94.1%" },
+      { label: "Citation precision", value: "0.971" },
+      { label: "Retrieval recall@6", value: "21/22" },
+      { label: "Qwen3 8B vs. extractive baseline", value: "21/30 vs 11/30" },
+    ],
+    links: {
+      demoUrl: "https://drive.google.com/file/d/1nB63WEFL_BPFWJCVKvnufQvtRw1V-soL/view?usp=sharing",
+      repoUrl: "https://github.com/charu-1727/cybersierra-evidence-qa",
+      repoPrivate: true,
+    },
+  },
   {
     id: "safety-stock",
-    number: "01",
+    number: "02",
     type: "Enterprise AI · Forecasting · MCP",
     title: "AI-Driven Safety Stock Copilot",
     status: "Validated prototype · forecasting preparation in progress",
@@ -67,7 +126,7 @@ const projects = [
   },
   {
     id: "sap-workflow",
-    number: "02",
+    number: "03",
     type: "Process Automation · SAP Governance",
     title: "SAP Change Request Automation",
     status: "Implemented workflow",
@@ -81,7 +140,7 @@ const projects = [
   },
   {
     id: "mcp-bridge",
-    number: "03",
+    number: "04",
     type: "Enterprise Integration · MCP · Cloud",
     title: "Logistics API to MCP Bridge",
     status: "Built and deployed in SAP BTP",
@@ -95,7 +154,7 @@ const projects = [
   },
   {
     id: "nlp",
-    number: "04",
+    number: "05",
     type: "NLP · Deep Learning · Research",
     title: "Aspect-Based Sentiment Intelligence",
     status: "Completed academic work",
@@ -109,7 +168,7 @@ const projects = [
   },
   {
     id: "olist",
-    number: "05",
+    number: "06",
     type: "Customer Analytics · Business Intelligence",
     title: "E-commerce Customer Analytics",
     status: "Completed project",
@@ -685,6 +744,50 @@ export default function Home() {
               </div>
               <div className="case-grid"><div><span>Challenge</span><p>{currentProject.challenge}</p></div><div><span>What I built</span><p>{currentProject.build}</p></div><div><span>Validation</span><p>{currentProject.validation}</p></div><div><span>Business value</span><p>{currentProject.value}</p></div></div>
               <div className="stack-row">{currentProject.stack.map((item) => <span key={item}>{item}</span>)}</div>
+              {currentProject.features && currentProject.features.length > 0 && (
+                <div className="evidence-actions">
+                  <span>Key features</span>
+                  <ul>{currentProject.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+                </div>
+              )}
+              {currentProject.metrics && currentProject.metrics.length > 0 && (
+                <div className="evidence-summary" aria-label={`${currentProject.title} measured results`}>
+                  {currentProject.metrics.map((metric) => (
+                    <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>
+                  ))}
+                </div>
+              )}
+              {currentProject.links && (currentProject.links.demoUrl || currentProject.links.repoUrl) && (
+                <div className="hero-actions">
+                  {currentProject.links.demoUrl && (
+                    <a
+                      className="button primary"
+                      href={currentProject.links.demoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Watch the ${currentProject.title} demo recording`}
+                    >
+                      Watch demo <span aria-hidden="true">▶</span>
+                    </a>
+                  )}
+                  {currentProject.links.repoUrl && (
+                    <a
+                      className="button secondary"
+                      href={currentProject.links.repoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={
+                        currentProject.links.repoPrivate
+                          ? `${currentProject.title} private repository on GitHub, access available on request`
+                          : `${currentProject.title} repository on GitHub`
+                      }
+                    >
+                      {currentProject.links.repoPrivate ? "Private repository — access available on request" : "View repository"}{" "}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                </div>
+              )}
               {currentProject.id === "nlp" && (
                 <a
                   className="button secondary"
@@ -824,7 +927,7 @@ export default function Home() {
       </section>
 
       <section className="contact-section" id="contact">
-        <div className="section-shell contact-grid"><div><p className="kicker">Open channel</p><h2>Let’s build AI that works beyond the demo.</h2></div><div className="contact-copy"><p>I’m open to opportunities in Enterprise AI Automation, Applied AI Solutions, Agentic AI and technology transformation.</p><a className="contact-email" href="mailto:charulata1711@gmail.com">charulata1711@gmail.com <span>↗</span></a><div className="contact-links"><a href="https://www.linkedin.com/in/charulata-c-54ba271b0/" target="_blank" rel="noreferrer">LinkedIn <small>professional profile ↗</small></a><a href="https://github.com/charu1717" target="_blank" rel="noreferrer">GitHub · Archive <small>existing work ↗</small></a><a href="https://github.com/charu-1727" target="_blank" rel="noreferrer">GitHub · Portfolio <small>new structured projects ↗</small></a><a href="https://ieeexplore.ieee.org/document/10543612" target="_blank" rel="noreferrer">IEEE paper <small>published research ↗</small></a><a href={`${basePath}/Charulata_Chauhan_Automation_AI_Resume.pdf`} download>Résumé <small>download PDF ↓</small></a></div></div></div>
+        <div className="section-shell contact-grid"><div><p className="kicker">Open channel</p><h2>Let’s build AI that works beyond the demo.</h2></div><div className="contact-copy"><p>I’m open to opportunities in Enterprise AI Automation, Applied AI Solutions, Agentic AI and technology transformation.</p><a className="contact-email" href="mailto:charulata1711@gmail.com">charulata1711@gmail.com <span>↗</span></a><div className="contact-links"><a href="https://www.linkedin.com/in/charulata-c-54ba271b0/" target="_blank" rel="noreferrer">LinkedIn <small>professional profile ↗</small></a><a href="https://github.com/charu-1727" target="_blank" rel="noreferrer">GitHub <small>projects &amp; portfolio ↗</small></a><a href="https://ieeexplore.ieee.org/document/10543612" target="_blank" rel="noreferrer">IEEE paper <small>published research ↗</small></a><a href={`${basePath}/Charulata_Chauhan_Automation_AI_Resume.pdf`} download>Résumé <small>download PDF ↓</small></a></div></div></div>
       </section>
 
       <footer className="footer section-shell"><div className="brand"><span className="brand-mark">CC</span><span>Charulata Chauhan</span></div><p>Enterprise AI Automation · Applied AI Solutions · Singapore</p><a href="#home">Back to top ↑</a></footer>
